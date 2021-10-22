@@ -12,23 +12,21 @@ class MentalState
   end
 end
 
-InvalidMentalStateException < ArgumentError; end
+class InvalidMentalStateException < ArgumentError; end
 
 def audit_sanity(bedtime_mental_state)
   raise InvalidMentalStateException.new("External service is offline") unless bedtime_mental_state.auditable?
-  begin
-    if bedtime_mental_state.audit!.ok?
-    rescue InvalidMentalStateException => e
-      puts e.message
-    end
-      MorningMentalState.new(:ok)
+  if bedtime_mental_state.audit!.ok?
+    MorningMentalState.new(:ok)
   else 
     MorningMentalState.new(:not_ok)
   end
 end
 
-if audit_sanity(bedtime_mental_state) == 0
-  puts "error"
+begin
+  new_state = audit_sanity(bedtime_mental_state)
+rescue InvalidMentalStateException => e
+  puts e.message
 else
   new_state = audit_sanity(bedtime_mental_state)
 end
@@ -43,8 +41,14 @@ class BedtimeMentalState < MentalState ; end
 
 class MorningMentalState < MentalState ; end
 
+class NullAudit < MentalState
+
+  def initialize
+    puts "Unknown Service Status"
+  end
+
 def audit_sanity(bedtime_mental_state)
-  return nil unless bedtime_mental_state.auditable?
+  return NullAudit.new unless bedtime_mental_state.auditable?
   if bedtime_mental_state.audit!.ok?
     MorningMentalState.new(:ok)
   else 
