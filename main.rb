@@ -66,11 +66,13 @@ new_state.do_work
 
 require 'candy_service'
 
-machine = CandyMachine.new
-machine.prepare
+class MyCandyMachine
+  machine = CandyMachine.new
+  machine.prepare
 
-if machine.ready?
-  machine.make!
-else
-  puts "sadness"
+  if machine.ready?
+    machine.make!
+  else
+    puts "sadness"
+  end
 end
