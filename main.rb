@@ -16,8 +16,12 @@ InvalidMentalStateException < Error; end
 
 def audit_sanity(bedtime_mental_state)
   raise InvalidMentalStateException unless bedtime_mental_state.auditable?
-  if bedtime_mental_state.audit!.ok?
-    MorningMentalState.new(:ok)
+  begin
+    if bedtime_mental_state.audit!.ok?
+    rescue InvalidMentalStateException => e
+      puts e.error
+    end
+      MorningMentalState.new(:ok)
   else 
     MorningMentalState.new(:not_ok)
   end
